@@ -64,45 +64,38 @@ FX and Equity only. **GIRR, CSR non-sec, CSR sec, CTP, Commodity** are
 missing entirely — and GIRR/CSR are usually the largest SA-TB contributors at
 real banks.
 
-### 2. `CORR_SCENARIOS` are flat and marked `DO NAPRAWY` in the code
-
-`config.py` uses a single `(same=0.25, cross=0.15)` pair for all equity
-buckets. MAR21.78/80 requires per-bucket ρ_kl and per-pair γ_bc tables. The
-low-correlation scenario formula is correct (MAR21.6(3)), but the base ρ is
-wrong.
-
-### 3. IMA-DRC uses sovereign PD proxy
+### 2. IMA-DRC uses sovereign PD proxy
 
 `IMA_DRC_PD_INTERNAL` assigns PDs based on the **sovereign rating** of the
 index issuer's country (comment in code: *"UŻYTO METODY SOVEREIGN PROXY"*).
 MAR33.24 requires obligor-level PDs from IRB models or market data. Equity
 indices are not sovereign bonds.
 
-### 4. No look-through for equity indices (MAR22.5)
+### 3. No look-through for equity indices (MAR22.5)
 
 `portfolio/drc.py` treats `^GSPC` as one position. MAR22.5 requires decomposing
 indices into single-name components for JtD. For a 500-name index this
 distortion is severe.
 
-### 5. Single-factor Vasicek for IMA-DRC
+### 4. Single-factor Vasicek for IMA-DRC
 
 One global factor `Z` for all obligors, flat ρ per bucket
 (IG=0.75 / HY=0.50 / EM=0.20). Real banks use multi-factor models calibrated
 from historical co-defaults or equity correlations. Single-factor dramatically
 understates concentration risk.
 
-### 6. `DRC_N_SIM = 100_000` is too low for 99.9%
+### 5. `DRC_N_SIM = 100_000` is too low for 99.9%
 
 Only ~100 observations in the tail. The in-code comment admits *"minimum
 viable due to computational constraints"*. Production uses 1–10M sims, often
 with importance sampling.
 
-### 7. GARCH(1,1) parameters hardcoded, no MLE
+### 6. GARCH(1,1) parameters hardcoded, no MLE
 
 ω=1e-6, α=0.10, β=0.85 applied to every risk factor — S&P and USDTRY share
 the same variance process. Real FHS fits GARCH per ticker via MLE.
 
-### 8. Stressed ES: no reduced set (MAR33.5(2))
+### 7. Stressed ES: no reduced set (MAR33.5(2))
 
 In `compute_stressed_es`:
 
@@ -114,30 +107,30 @@ ratio = max(es_curr / es_rc, 1.0)   # always 1.0
 The entire stress-calibration scaling factor is effectively disabled.
 `es_applied` collapses to just `es_stressed`.
 
-### 9. `find_stress_window` uses pure HS on the full set
+### 8. `find_stress_window` uses pure HS on the full set
 
 MAR33.5(2) requires a reduced set for the stress window search; the code
 scans ~20 years on the full set with pure HS (to avoid GARCH σ_current
 artifacts). Pragmatic compromise, not compliant. The fallback silently
 returns the Lehman window if data is missing.
 
-### 10. NMRF treatment is minimal
+### 9. NMRF treatment is minimal
 
 NMRF is just a `Type == 'NMRF'` flag in the DataFrame, with one position
 (`USDTRY=X`). No RFET, no category split (idiosyncratic credit vs. equity
 vs. other), no aggregation rules from MAR33.16–33.18.
 
-### 11. No Risk Factor Eligibility Test (MAR31.12)
+### 10. No Risk Factor Eligibility Test (MAR31.12)
 
 No modellability check (24+ real prices in 12 months, max 30-day gap). The
 MRF/NMRF split is hardcoded in `portfolio/linear.py`.
 
-### 12. Backtesting takes `max(APL, HPL)` exceptions
+### 11. Backtesting takes `max(APL, HPL)` exceptions
 
 Conservative but hides HPL-vs-APL divergence, which is the diagnostic signal
 for model quality. MAR32.5/32.18 expect both counters reported separately.
 
-### 13. All BT and PLAT run on mock data
+### 12. All BT and PLAT run on mock data
 
 `generate_mock_var` and `generate_mock_pnl` generate VaR/APL/HPL/RTPL from
 gaussians controlled by `scenario ∈ {green, amber, red}`. **The bank's
@@ -145,46 +138,26 @@ multiplier *m* and every desk's IMA-eligibility are driven by flags in
 `main.py`, not historical P&L.** Production needs front-office APL,
 frozen-portfolio HPL, and risk-engine RTPL.
 
-### 14. `SA_DRC_RW_BUCKET` collapses ratings to IG/HY/D/NR
+### 13. `SA_DRC_RW_BUCKET` collapses ratings to IG/HY/D/NR
 
 `sa/drc.py` uses the bucketed version with worst-case weights (BBB for IG,
 CCC for HY) instead of the per-rating MAR22.24 Table 2 (`SA_DRC_RW_NON_SEC`
 exists in config but is unused).
 
-### 15. Equity option JtD = 0
+### 14. Equity option JtD = 0
 
 Formally correct per MAR22.14(1)(c) — option expires, no jump — but it means
 option hedges contribute nothing to DRC in either SA or IMA. Most banks apply
 delta-equivalent approximations for hedge recognition.
 
-### 16. Hardcoded portfolio, two desks
+### 15. Hardcoded portfolio, two desks
 
 10 linear positions, 6 options, 8 DRC positions, `DESKS = {'FX', 'Eq'}`. No
 CSV/Parquet loader. Real books have hundreds of thousands of trades across
 dozens of desks.
 
-### 17. yfinance silently falls back to synthetic data
 
-`get_returns` wraps yfinance in a bare `try/except` and on failure returns
-`_synthetic_returns(seed=42)` with no warning. For a capital system this is
-critical — a rate limit should hard-fail, not replace real data with noise.
-
-### 18. No tests
-
-No `tests/`, no doctests, no reconciliation harness. For regulatory capital
-code this is the biggest audit red flag (SR 11-7 / MAR10.8 model risk
-management).
-
-### 19. Repo hygiene
-
-- `.Rhistory` and `.secrets.baseline` checked in (empty)
-- `repomix-output.md` committed alongside sources
-- "DO USUNIĘCIA po migracji" aliases still live in `config.py`
-- Comments mix Polish and English
-- `plat.py` has two module docstrings in a row
-- Commented-out yfinance smoke test at the top of `ima/es.py`
-
-### 20. No per-factor PLA diagnostics
+### 16. No per-factor PLA diagnostics
 
 PLAT only computes Spearman + KS on aggregate HPL/RTPL. No greek-level
 decomposition (delta-explain, vega-explain), no unexplained-P&L report — all
