@@ -1,10 +1,10 @@
 
-Basel IV / FRTB — Capital Engine (SA-TB + IMA)
+### Basel IV / FRTB — Capital Engine (SA-TB + IMA)
 
-Educational prototype of an FRTB (BCBS d457 / CRR3) market risk capital engine
-Runs SA-TB and IMA in parallel with 72.5% output floor
+# Educational prototype of an FRTB (BCBS d457 / CRR3) market risk capital engine
+# Runs SA-TB and IMA in parallel with 72.5% output floor
 
-📚 Table of Contents
+### 📚 Table of Contents
 Overview
 Pipeline
 Repository Structure
