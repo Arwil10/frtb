@@ -1,10 +1,5 @@
 """
-sa/vega.py — SBM vega risk charge (d457 §96, §99, §105).
-
-Sensitivity per option (§96):
-    s_kl = vega_BS × σ_implied        (response to a relative shock in σ)
-
-Earlier code had `vega × (1/S) × (1/σ)` which is not §96. Fixed here.
+sa/vega.py — SBM vega risk charge
 """
 
 from dataclasses import dataclass
@@ -24,19 +19,10 @@ class VegaResult:
 
 # ---------------------------------------------------------------- §96 sens
 def vega_sensitivity(opt: BSOption) -> float:
-    """
-    d457 §96: sensitivity to a relative shift in implied vol.
-        s_kl = (vega_BS × σ) × n_units
+    n_units = opt.notional / opt.S        # MAR21.15: sensitivities expressed in reporting currency
+    return n_units * opt.vega() * opt.sigma # MAR21.25: vega sensitivity = vega_BS × σ_implied
 
-    where n_units = notional_EUR / S is the number of underlying units
-    implied by the EUR notional. vega_BS is per unit of underlying, so
-    we scale by n_units to get the portfolio-level sensitivity in EUR.
-    Signed by notional (long/short).
-    """
-    n_units = opt.notional / opt.S        # preserves sign
-    return n_units * opt.vega() * opt.sigma
-
-
+# TODO: Implement pair-wise maturity correlation decay per MAR21.93-21.94.
 # ----------------------------------------------------------------- runner
 def compute_vega_charge(options: list[BSOption]) -> VegaResult:
     if not options:
@@ -46,21 +32,23 @@ def compute_vega_charge(options: list[BSOption]) -> VegaResult:
     ws_by_bucket: dict[str, list[float]] = {}
 
     for opt in options:
-        s  = vega_sensitivity(opt)
-        rw = VEGA_RW.get(opt.bucket, VEGA_RW.get(opt.asset_class, 0.55))
-        ws = s * rw
+        s  = vega_sensitivity(opt)                                           # MAR21.25: option-level vega sensitivity
+        rw = VEGA_RW.get(opt.bucket, VEGA_RW.get(opt.asset_class, 0.55))   # MAR21.92, Table 13: vega risk weight per risk class
+        ws = s * rw                                                          # MAR21.4(3): weighted sensitivity WS_k = s_k × RW_k
         sens_rows.append((opt.id, opt.bucket, s, ws))
-        ws_by_bucket.setdefault(opt.bucket, []).append(ws)
+        ws_by_bucket.setdefault(opt.bucket, []).append(ws)                  # MAR21.4(2): net sensitivity per risk factor
 
     best_total, best_sc, best_k = -1.0, None, {}
-    for name, corr in CORR_SCENARIOS.items():
+    for name, corr in CORR_SCENARIOS.items():                               # MAR21.6: three correlation scenarios (low/medium/high)
         rho_same, rho_cross = corr['same_bucket'], corr['cross_bucket']
-        k_by_bucket = {b: bucket_charge(ws, rho_same) for b, ws in ws_by_bucket.items()}
-        s_by_bucket = {b: sum(ws) for b, ws in ws_by_bucket.items()}
-        total = cross_bucket_charge(k_by_bucket, s_by_bucket, rho_cross)
+        k_by_bucket = {b: bucket_charge(ws, rho_same)                      # MAR21.4(4): within-bucket aggregation using ρ_kl
+                       for b, ws in ws_by_bucket.items()}
+        s_by_bucket = {b: sum(ws) for b, ws in ws_by_bucket.items()}       # MAR21.4(5): S_b = sum of weighted sensitivities in bucket b
+        total = cross_bucket_charge(k_by_bucket, s_by_bucket, rho_cross)   # MAR21.4(5): across-bucket aggregation using γ_bc
         if total > best_total:
             best_total, best_sc, best_k = total, name, k_by_bucket
 
+    # MAR21.7(2): capital requirement = maximum across three correlation scenarios
     return VegaResult(
         charge_by_bucket = best_k,
         sensitivities    = sens_rows,

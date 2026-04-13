@@ -13,7 +13,7 @@ _LINEAR_DATA = {
     'Type':         ['MRF', 'NMRF', 'MRF', 'MRF', 'MRF', 'MRF', 'MRF', 'MRF', 'MRF', 'MRF'],
     'Ticker':       ['USDPLN=X', 'USDTRY=X', 'EURPLN=X', 'GBPPLN=X', 'JPYPLN=X',
                      '^GSPC', '^GDAXI', '^FTSE', '^N225', 'EEM'],
-    'Bucket':       ['FX', 'FX', 'FX', 'FX', 'FX', 'B12', 'B12', 'B12', 'B12', 'B13'],
+    'Bucket': ['USD/PLN', 'USD/TRY', 'EUR/PLN', 'GBP/PLN', 'JPY/PLN', 'B12', 'B12', 'B12', 'B12', 'B13'],
     'LH':           [20, 20, 20, 20, 20, 10, 10, 10, 10, 20],
 }
 

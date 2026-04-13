@@ -48,13 +48,18 @@ CURVATURE_SHOCK = {
 # Correlation scenarios for SBM aggregation DO NAPRAWY!!!!!!!!!!!!!!!!
 # ============================================================================
 # Banks must compute charges under three scenarios and take the max.
-CORR_SCENARIOS = {
-    'low':    {'same_bucket': 0.10, 'cross_bucket': 0.00},
-    'medium': {'same_bucket': 0.25, 'cross_bucket': 0.15},
-    'high':   {'same_bucket': 0.75, 'cross_bucket': 0.45},
-}
-# DO NAPRAWY!!!!!
+def _scenarios(same: float, cross: float) -> dict:
+    """MAR21.6: trzy scenariusze korelacji."""
+    return {
+        'medium': {'same_bucket': same,                        'cross_bucket': cross},
+        'high':   {'same_bucket': min(same * 1.25, 1.0),      'cross_bucket': min(cross * 1.25, 1.0)},   # MAR21.6(2)
+        'low':    {'same_bucket': max(2*same-1, 0.75*same),   'cross_bucket': max(2*cross-1, 0.75*cross)}, # MAR21.6(3)
+    }
 
+CORR_SCENARIOS = _scenarios(same=0.25, cross=0.15)  # MAR21.78, MAR21.80
+FX_CORR = 0.60  # MAR21.89 — bazowa, scenariusze liczone dynamicznie w delta.py
+CORR_SCENARIOS_EQ = _scenarios(same=0.25, cross=0.15)  # MAR21.78, MAR21.80
+CORR_SCENARIOS_FX = _scenarios(same=0.0,  cross=0.60)  # MAR21.89
 # ============================================================================
 # IMA parameters (d457 §181–191)
 # ============================================================================
