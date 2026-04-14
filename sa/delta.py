@@ -12,7 +12,7 @@ which is then treated as a linear position in the same bucket.
 from dataclasses import dataclass
 import pandas as pd
 
-from config import FX_DELTA_RW, EQUITY_DELTA_RW, CORR_SCENARIOS_FX, CORR_SCENARIOS_EQ
+from config import FX_DELTA_RW, EQUITY_DELTA_RW, CORR_SCENARIOS_EQ
 from pricing.black_scholes import BSOption
 from sa._aggregation import bucket_charge, cross_bucket_charge
 
@@ -63,16 +63,17 @@ def _fx_delta(df: pd.DataFrame, gamma: float) -> float:
 
 
 # ----------------------------------------------------------------- equity
-def _equity_delta(df: pd.DataFrame, rho_same: float, rho_cross: float) -> float:
+def _equity_delta(df: pd.DataFrame, rho_same_dict: dict, rho_cross: float) -> float:
     """Equity delta: bucket-level SBM then cross-bucket with γ = rho_cross."""
     if df.empty:
         return 0.0
     k_by_bucket: dict[str, float] = {}
     s_by_bucket: dict[str, float] = {}
-    for bucket, group in df.groupby('Bucket'): #MAR21.72 defines bucket structure (market cap × economy × sector)
-        rw = EQUITY_DELTA_RW.get(bucket, 0.55)
-        ws = (group['Exposure_EUR'] * rw).tolist()
-        k_by_bucket[bucket] = bucket_charge(ws, rho_same)
+    for bucket, group in df.groupby('Bucket'):
+        rw  = EQUITY_DELTA_RW.get(bucket, 0.55)
+        ws  = (group['Exposure_EUR'] * rw).tolist()
+        rho = rho_same_dict.get(bucket, 0.25)  # per-bucket MAR21.78
+        k_by_bucket[bucket] = bucket_charge(ws, rho)
         s_by_bucket[bucket] = float(sum(ws))
     return cross_bucket_charge(k_by_bucket, s_by_bucket, rho_cross)
 
@@ -86,7 +87,6 @@ def compute_delta_charge(
     Combine linear positions and option delta-equivalents, then pick the
     max over the three correlation scenarios MAR 21.6-MAR21.7
     """
-    # Merge linear + option-delta-equivalents in a single DataFrame
     frames = [linear_df[['Asset_Class', 'Bucket', 'Exposure_EUR']]]
     if options:
         frames.append(pd.DataFrame(_option_delta_equivalents(options))
@@ -95,17 +95,12 @@ def compute_delta_charge(
 
     df_fx = df[df['Asset_Class'] == 'FX']
     df_eq = df[df['Asset_Class'] == 'Eq']
-#debug
-    for o in options:
-        print(f"{o.underlying}: delta={o.delta():.4f}  notional={o.notional}  delta_eq={o.notional * o.delta():.4f}")
-    print(df_fx[['Bucket', 'Exposure_EUR']].to_string())
 
     best_total, best_sc, best_fx, best_eq = -1.0, None, 0.0, 0.0
-    for name in ('low', 'medium', 'high'):
-        fx = _fx_delta(df_fx, CORR_SCENARIOS_FX[name]['cross_bucket'])
-        eq = _equity_delta(df_eq, CORR_SCENARIOS_EQ[name]['same_bucket'],
-                           CORR_SCENARIOS_EQ[name]['cross_bucket'])
-        total = fx + eq #MAR 21.7
+    for name, corr in CORR_SCENARIOS_EQ.items():
+        fx    = _fx_delta(df_fx, corr['cross_bucket'])
+        eq    = _equity_delta(df_eq, corr['same_bucket'], corr['cross_bucket'])
+        total = fx + eq
         if total > best_total:
             best_total, best_sc, best_fx, best_eq = total, name, fx, eq
 

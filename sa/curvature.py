@@ -32,8 +32,6 @@ class CurvatureResult:
 # ----------------------------------------------------------- per-option CVR
 def _compute_cvr(opt: BSOption) -> tuple[float, float]:
     """
-    Return (CVR_up, CVR_dn) per §108 for a single option.
-
     BS price and delta are both expressed per unit of underlying. We scale
     by n_units = notional_EUR / S to convert to portfolio currency.
     """
@@ -64,7 +62,7 @@ def _bucket_K(cvrs: list[float], rho: float) -> float:
         return 0.0
     pos_sq = sum(max(c, 0.0) ** 2 for c in cvrs)          # MAR21.5(3): Σ max(CVR_k, 0)²
     cross  = sum(
-        rho * cvrs[i] * cvrs[j] * _psi(cvrs[i], cvrs[j]) # MAR21.5(3): ρ_kl² · CVR_k · CVR_l · ψ(CVR_k, CVR_l); MAR21.100: ρ_kl² = squared delta correlation
+        rho * cvrs[i] * cvrs[j] * _psi(cvrs[i], cvrs[j]) # MAR21.5(3): ρ_kl^2 · CVR_k · CVR_l · ψ(CVR_k, CVR_l); MAR21.100: ρ_kl^2 = squared delta correlation
         for i in range(n) for j in range(n) if i != j
     )
     return float(np.sqrt(max(pos_sq + cross, 0.0)))        # MAR21.5(3): K_b = sqrt(max(0, ...))
@@ -76,11 +74,11 @@ def _cross_bucket_K(k_by_bucket: dict, s_by_bucket: dict, gamma: float) -> float
     n = len(buckets)
     if n == 0:
         return 0.0
-    var = sum(k_by_bucket[b] ** 2 for b in buckets)        # MAR21.5(4): Σ K_b²
+    var = sum(k_by_bucket[b] ** 2 for b in buckets)        # MAR21.5(4): Σ K_b^2
     cov = sum(
         (gamma ** 2) * s_by_bucket[buckets[i]] * s_by_bucket[buckets[j]]
         * _psi(s_by_bucket[buckets[i]], s_by_bucket[buckets[j]])  # MAR21.5(4): ψ(S_b, S_c) — 0 if both S_b and S_c negative
-        for i in range(n) for j in range(n) if i != j             # MAR21.101: γ_bc² — gamma is SQUARED for curvature
+        for i in range(n) for j in range(n) if i != j             # MAR21.101: γ_bc^2 — gamma is SQUARED for curvature
     )
     return float(np.sqrt(max(var + cov, 0.0)))
 

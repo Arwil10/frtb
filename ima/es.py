@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-
 from config import ES_CONFIDENCE, GARCH_OMEGA, GARCH_ALPHA, GARCH_BETA
 # import yfinance as yf
 # for t in ['EURPLN=X', 'GBPPLN=X', 'JPYPLN=X', 'USDTRY=X']:
@@ -63,7 +62,14 @@ def get_returns(tickers, period=None, start=None, end=None, n_days=504):
             raise ValueError('no data after processing')
         return returns
 
+
     except Exception as e:
+        import warnings
+        warnings.warn(
+            f"yfinance failed ({e}), using synthetic returns — DEV ONLY",
+            stacklevel=2,
+        )
+
         return _synthetic_returns(tickers, n_days)
 
 # ima/es.py — dodaj na końcu

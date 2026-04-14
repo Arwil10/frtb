@@ -101,10 +101,7 @@ def _drc_bucket_method(netting: list[ObligorNetting]) -> list[BucketDRC]:
 # PD-based method (granular)
 # ============================================================================
 def _drc_pd_method(positions: list[DRCPosition]) -> list[BucketDRC]:
-    """
-    Per-position EL = PD·LGD·|N|. HBR computed from gross JtD per bucket.
-    Final DRC_net = max(Σ EL_long − HBR·Σ EL_short, 0), no extra × RW.
-    """
+
     agg: dict[str, dict] = defaultdict(
         lambda: {'el_long': 0.0, 'el_short': 0.0,
                  'jtd_long': 0.0, 'jtd_short': 0.0}
