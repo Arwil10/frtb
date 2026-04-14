@@ -6,7 +6,7 @@ Educational prototype of a **FRTB (BCBS d457 / CRR3)** market risk capital engin
 
 # ⚖️ Basel IV / FRTB — Capital Engine (SA-TB + IMA)
 
-A comprehensive Python implementation of the **Fundamental Review of the Trading Book** framework, covering both the Standardised Approach (SA-TB) and the Internal Models Approach (IMA), with MAR32 backtesting, PLA testing, and the CRR3 output floor.
+A comprehensive Python implementation of the **Fundamental Review of the Trading Book** framework, covering both the Standardised Approach (SA-TB) and the Internal Models Approach (IMA), with backtesting, PLA testing, and the output floor.
 
 ## 📐 Overview
 
