@@ -34,3 +34,31 @@ And the SA-TB charge uses the three-scenario SBM aggregation:
 $$\text{SA-TB} = \text{SBM}(\delta, \nu, \kappa) + \text{SA-DRC}$$
 
 ## 📁 Repo Layout
+
+
+
+
+## 🚀 Run
+
+```bash
+pip install numpy pandas scipy yfinance
+python main.py
+```
+
+## 📊 Key Results (Illustrative)
+
+The engine produces the following capital stack for the prototype portfolio (2 desks: FX + Equity):
+
+| Component | Approach | Capital Charge |
+| :--- | :--- | :--- |
+| **Delta** | SA-TB | Included in SBM |
+| **Vega** | SA-TB | Included in SBM |
+| **Curvature** | SA-TB | Included in SBM |
+| **SA-DRC** | SA-TB | Separate add-on |
+| **ES (IMA)** | IMA | GARCH-filtered FHS |
+| **IMA-DRC** | IMA | Vasicek MC, 99.9% |
+| **Output Floor** | CRR3 art. 89 | `max(IMA, 72.5% × SA)` |
+
+> **Note:** Actual numbers are mock-data driven. See `main.py` for the capital cliff report output.
+
+## 🔍 Pipeline Flow
