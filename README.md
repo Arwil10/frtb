@@ -1,42 +1,36 @@
-## Basel IV / FRTB — Capital Engine (SA-TB + IMA)
+# Basel-IV-FRTB-Capital-Engine
 
-Educational prototype of an FRTB (BCBS d457 / CRR3) market risk capital
-engine. Runs both approaches in parallel and applies the 72.5% output floor:
+Educational prototype of a **FRTB (BCBS d457 / CRR3)** market risk capital engine running SA-TB and IMA in parallel with a 72.5% output floor.
 
-- SA-TB — Sensitivity-Based Method (delta, vega, curvature) + SA-DRC
-- IMA — Expected Shortfall via Filtered Historical Simulation with
-GARCH(1,1) filter, NMRF stressed add-on, IMA-DRC via Vasicek one-factor MC
-- Backtesting (MAR32) — desk-level and bank-wide (→ multiplier m)
-- PLA Test (MAR32.34–44) — Spearman + KS on HPL vs RTPL
-- Output floor (CRR3 art. 89) — 72.5% × Σ SA
+---
 
-Pipeline in main.py: bank-wide BT → m → per-desk IMA and SA → desk BT +
-PLAT → desk is IMA-eligible only if both pass → aggregate + floor + capital
-cliff report.
+# ⚖️ Basel IV / FRTB — Capital Engine (SA-TB + IMA)
 
-# Repo layout
-main.py                 pipeline runner + final report
-config.py               single source of truth (RWs, correlations, thresholds)
-backtesting.py          MAR32 — desk & bank-wide
-plat.py                 MAR32.34–44 — Spearman / KS
+A comprehensive Python implementation of the **Fundamental Review of the Trading Book** framework, covering both the Standardised Approach (SA-TB) and the Internal Models Approach (IMA), with MAR32 backtesting, PLA testing, and the CRR3 output floor.
 
-pricing/black_scholes.py    BS / Garman-Kohlhagen + analytical greeks
+## 📐 Overview
 
-portfolio/
-  linear.py             spot/forward FX + equity positions
-  options.py            FX + equity option book
-  drc.py                DRCPosition + hardcoded DRC positions
-  desks.py              desk aggregation (FX, Eq)
+This repository contains an end-to-end FRTB pipeline that:
 
-sa/                     Standardised Approach
-  _aggregation.py       SBM primitives
-  delta.py              §55, §58–60
-  vega.py               §96, §99, §105
-  curvature.py          §108, §121–122 (γ² in cross-bucket)
-  drc.py                SA-DRC (bucket / pd_based methods)
-  engine.py             SA runner
+1. 📊 **Runs SA-TB** — Sensitivity-Based Method (delta, vega, curvature) + SA-DRC
+2. 🧠 **Runs IMA** — Expected Shortfall via Filtered Historical Simulation with GARCH(1,1), NMRF stressed add-on, and IMA-DRC via Vasicek one-factor MC
+3. 🔁 **Backtests (MAR32)** — desk-level and bank-wide, producing the regulatory multiplier *m*
+4. 🧪 **PLA Test (MAR32.34–44)** — Spearman + KS on HPL vs RTPL
+5. 🏦 **Applies the Output Floor (CRR3 art. 89)** — `max(IMA_aggregate, 72.5% × Σ SA)`
+6. 📋 **Generates a capital cliff report** — per-desk IMA eligibility + final capital charge
 
-ima/                    Internal Models Approach
-  es.py                 FHS + GARCH(1,1), NMRF shock, stress window finder
-  drcima.py             IMA-DRC — Vasicek MC, 99.9%, 1Y
-  engine.py             IMA runner
+## 🧮 Methodology
+
+The core capital formula follows:
+
+$$K = \max\left(\text{IMA}_{agg},\; 0.725 \times \sum_{desk} \text{SA}_{desk}\right)$$
+
+Where each desk's IMA charge is:
+
+$$\text{IMA}_{desk} = ES_{full} \times \frac{ES_{stressed}}{ES_{current}} + \text{SES}_{NMRF} + \text{DRC}_{IMA}$$
+
+And the SA-TB charge uses the three-scenario SBM aggregation:
+
+$$\text{SA-TB} = \text{SBM}(\delta, \nu, \kappa) + \text{SA-DRC}$$
+
+## 📁 Repo Layout
