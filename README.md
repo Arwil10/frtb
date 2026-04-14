@@ -71,7 +71,6 @@ This is a **teaching prototype**, not production-grade software. Each item below
 | # | Area | Simplification | Standard Requirement |
 | :--- | :--- | :--- | :--- |
 | 1 | **Risk classes** | FX + Equity only | GIRR, CSR non-sec, CSR sec, CTP, Commodity missing |
-| 2 | **Correlations** | Flat `(same=0.25, cross=0.15)` for all buckets | MAR21.78/80 per-bucket ρ_kl and γ_bc tables |
 | 3 | **IMA-DRC PDs** | Sovereign proxy for equity index issuers | MAR33.24 obligor-level PDs from IRB/market data |
 | 4 | **Index look-through** | `^GSPC` treated as one position | MAR22.5 decomposition into 500 single names |
 | 5 | **Vasicek model** | Single-factor, flat ρ per rating bucket | Multi-factor, historically calibrated co-default |
@@ -85,10 +84,7 @@ This is a **teaching prototype**, not production-grade software. Each item below
 | 13 | **BT / PLAT data** | Gaussian mock P&L | Production: front-office APL, frozen-portfolio HPL, risk-engine RTPL |
 | 14 | **SA-DRC ratings** | Collapsed to IG/HY/D/NR (worst-case) | MAR22.24 Table 2 per-rating weights |
 | 15 | **Option JtD** | Set to 0 (formally correct per MAR22.14) | Banks apply delta-equivalent hedge recognition |
-| 16 | **Portfolio** | 2 desks, hardcoded positions | No CSV/Parquet loader; production: 100k+ trades |
-| 17 | **Market data** | Silent fallback to `synthetic_returns(seed=42)` | Rate-limit should hard-fail, not silently substitute |
 | 18 | **Testing** | No test suite | SR 11-7 / MAR10.8: mandatory model risk management |
-| 19 | **Repo hygiene** | Mixed Polish/English, `.Rhistory` committed, TODO aliases in `config.py` | — |
 | 20 | **PLA diagnostics** | Aggregate Spearman + KS only | Greek-level delta/vega explain, unexplained-P&L report |
 
 ## 🗺️ Minimum Viable Production Roadmap
