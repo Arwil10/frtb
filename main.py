@@ -44,7 +44,7 @@ class DeskCapital:
 
 def main() -> dict:
     print('\n' + '#' * 65)
-    print('  BASEL IV FRTB — FULL RUN (IMA + SA + BT + PLAT + FLOOR)')
+    print('  BASEL IV FRTB — FULL RUN (IMA + SA + BT + PLAT)')
     print('#' * 65)
 
     # ------------------------------------------------- Bank-wide backtesting

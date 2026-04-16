@@ -35,7 +35,7 @@ def compute_vega_charge(options: list[BSOption]) -> VegaResult:
         s  = vega_sensitivity(opt)                                           # MAR21.25: option-level vega sensitivity
         rw = VEGA_RW.get(opt.bucket, VEGA_RW.get(opt.asset_class, 0.55))   # MAR21.92, Table 13: vega risk weight per risk class
         ws = s * rw                                                          # MAR21.4(3): weighted sensitivity WS_k = s_k × RW_k
-        sens_rows.append((opt.id, opt.bucket, s, ws))
+        sens_rows.append((opt.id, opt.bucket, opt.option_tenor, s, ws))
         ws_by_bucket.setdefault(opt.bucket, []).append(ws)                  # MAR21.4(2): net sensitivity per risk factor
 
     best_total, best_sc, best_k = -1.0, None, {}

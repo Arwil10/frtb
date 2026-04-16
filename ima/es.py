@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from scipy.optimize import minimize
 from config import ES_CONFIDENCE, GARCH_OMEGA, GARCH_ALPHA, GARCH_BETA
 # import yfinance as yf
 # for t in ['EURPLN=X', 'GBPPLN=X', 'JPYPLN=X', 'USDTRY=X']:
@@ -193,6 +194,27 @@ def _fhs_returns(returns_df: pd.DataFrame) -> pd.DataFrame:
         filtered[col] = (r / sigma) * sigma_current
     return pd.DataFrame(filtered, index=returns_df.index)
 
+# ============================================================================
+# Option full revaluation P&L (MAR33.9)
+# ============================================================================
+def option_pnl_series(opt, fhs_scaled: pd.DataFrame) -> pd.Series:
+    """
+    Full revaluation P&L opcji per scenariusz FHS.
+
+    Chwyta: delta + gamma. Nie chwyta: vega (known simplification).
+    """
+    ticker = opt.underlying
+    if ticker not in fhs_scaled.columns:
+        return pd.Series(0.0, index=fhs_scaled.index)
+
+    n_units = opt.notional / opt.S
+    v_curr  = opt.price()
+    r_col   = fhs_scaled[ticker]
+
+    pnl = r_col.map(
+        lambda r: (opt.reprice(S_new=opt.S * np.exp(r)) - v_curr) * n_units
+    )
+    return pnl
 
 # ============================================================================
 # Portfolio ES (FHS + LH scaling)
@@ -202,39 +224,42 @@ def portfolio_es(
     exposures:  pd.Series,
     lh:         pd.Series,
     confidence: float = ES_CONFIDENCE,
+    options:    list  = None,              # <-- NOWE
 ) -> tuple[float, pd.Series]:
-    """
-    Compute FHS Expected Shortfall dla portfela.
 
-    Kroki:
-      1. FHS — filtruj zwroty przez GARCH(1,1)          (FHS)
-      2. Skaluj przez sqrt(LH/10)                        MAR33.4
-      3. Policz P&L portfela = Σ exposure_i × r̃_i
-      4. ES = -mean(P&L | P&L ≤ VaR_α)                 MAR33.3
+    options  = options or []
+    lin_tickers = [t for t in exposures.index if t in returns_df.columns]
+    opt_tickers = [o.underlying for o in options
+                   if o.underlying in returns_df.columns]
+    all_tickers = list(set(lin_tickers + opt_tickers))
 
-    Returns:
-      es    — ES jako liczba dodatnia (strata)
-      pnl   — pełna seria P&L portfela
-    """
-    available = [t for t in exposures.index if t in returns_df.columns]
-    if not available:
+    if not all_tickers:
         return 0.0, pd.Series(dtype=float)
 
-    exp = exposures[available]
-    lh_ = lh[available]
+    #  FHS
+    filtered = _fhs_returns(returns_df[all_tickers])
 
-    # Krok 1: FHS
-    filtered = _fhs_returns(returns_df[available])
+    #  LH scaling
+    lh_map = lh.to_dict()
+    for opt in options:
+        if opt.underlying not in lh_map:
+            lh_map[opt.underlying] = 10 if opt.asset_class == 'Eq' else 20
+    scale      = pd.Series({t: np.sqrt(lh_map.get(t, 10) / 10.0)
+                             for t in all_tickers})
+    fhs_scaled = filtered * scale
 
-    # Krok 2: skalowanie LH — MAR33.4
-    # sqrt(LH/10) bo ES bazowy jest na 10-dniowym horyzoncie
-    lh_scale = np.sqrt(lh_.values / 10.0)
-    scaled   = filtered * lh_scale
+    #  P&L liniowy
+    if lin_tickers:
+        exp = exposures[lin_tickers]
+        pnl = fhs_scaled[lin_tickers].dot(exp)
+    else:
+        pnl = pd.Series(0.0, index=returns_df.index)
 
-    # Krok 3: P&L portfela
-    pnl = scaled.dot(exp)
+    #  P&L opcji — full revaluation
+    for opt in options:
+        pnl = pnl.add(option_pnl_series(opt, fhs_scaled), fill_value=0.0)
 
-    # Krok 4: ES
+    #  ES
     cutoff = np.percentile(pnl, (1 - confidence) * 100)
     tail   = pnl[pnl <= cutoff]
     es     = float(-tail.mean()) if len(tail) > 0 else 0.0
@@ -250,6 +275,7 @@ def compute_stressed_es(
     r_stressed: pd.DataFrame,
     exposures:  pd.Series,
     lh:         pd.Series,
+    options:    list = None,
 ) -> tuple[float, float, float, float]:
     """
     MAR33.6:

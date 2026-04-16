@@ -54,7 +54,6 @@ def _apply_scenario(rho: float, scenario: str) -> float:
     if scenario == 'medium': return rho
     if scenario == 'high':   return min(rho * 1.25, 1.0)           # MAR21.6(2)
     if scenario == 'low':    return max(2 * rho - 1.0, 0.75 * rho) # MAR21.6(3)
-    raise ValueError(f"Nieznany scenariusz: {scenario}")
 
 
 # Korelacje within-bucket per bucket — MAR21.78(2)
@@ -114,7 +113,7 @@ GARCH_BETA  = 0.85  # persistence zmienności
 # IMA DRC (MAR33.20–33.27)
 # ============================================================================
 DRC_CONFIDENCE     = 0.999      # MAR33.20(5): 99.9% one-tailed
-DRC_N_SIM          = 100_000    # min. viable — produkcja wymaga 1M+
+DRC_N_SIM          = 1_000_000    # min. viable — produkcja wymaga 1M+
 DRC_HORIZON_Y      = 1.0        # MAR33.20(5): 1-year horizon
 
 IMA_DRC_CONFIDENCE   = 0.999    # MAR33.20(5)
@@ -137,9 +136,9 @@ IMA_DRC_PD_INTERNAL = {
 
 # Korelacje — ZAŁOŻENIA MODELOWE (MAR33.20, MAR33.27)
 IMA_DRC_RHO_INTERNAL = {
-    'IG': 0.75,
-    'HY': 0.50,
-    'EM': 0.20,
+    'IG': 0.30, # Realistyczny stres dla dużych korporacji
+    'HY': 0.20, # Większe ryzyko specyficzne (idiosynkratyczne)
+    'EM': 0.15, # Wysokie ryzyko specyficzne / lokalne
 }
 
 EM_SECTORS = {'index_em'}

@@ -7,25 +7,29 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 
+VEGA_TENORS = [0.5, 1.0, 3.0, 5.0, 10.0]  # MAR21.12(2)(a) equity, MAR21.14(2) FX
+
+
 @dataclass
 class BSOption:
     """European option (BS for equity, GK for FX)."""
-    id:          int
-    asset_class: Literal['FX', 'Eq']
-    bucket:      str                    # 'FX' | 'B8' | 'B9'
-    underlying:  str
-    S:           float
-    K:           float
-    T:           float                  # years
-    r:           float                  # domestic rate
-    sigma:       float
-    q:           float                  # dividend yield / foreign rate
-    cp:          Literal['call', 'put']
-    notional:    float                  # signed EUR market value of the
-                                        # underlying exposure: notional = n_units × S.
-                                        # To convert per-unit BS results to
-                                        # portfolio-level EUR, multiply by
-                                        # (notional / S).
+    id:             int
+    asset_class:    Literal['FX', 'Eq']
+    bucket:         str                    # 'FX' | 'B8' | 'B9'
+    underlying:     str
+    S:              float
+    K:              float
+    T:              float                  # years
+    r:              float                  # domestic rate
+    sigma:          float
+    q:              float                  # dividend yield / foreign rate
+    cp:             Literal['call', 'put']
+    notional:       float                  # signed EUR market value of the
+                                           # underlying exposure: notional = n_units × S.
+                                           # To convert per-unit BS results to
+                                           # portfolio-level EUR, multiply by
+                                           # (notional / S).
+    option_maturity: float | None = None   # MAR21.12(2)(a), MAR21.14(2): termin opcji w latach
 
     _d1: float = field(init=False, repr=False)
     _d2: float = field(init=False, repr=False)
@@ -35,6 +39,17 @@ class BSOption:
         self._d1 = (np.log(self.S / self.K)
                     + (self.r - self.q + 0.5 * self.sigma ** 2) * self.T) / vol_sqrt_t
         self._d2 = self._d1 - vol_sqrt_t
+
+    @property
+    def option_tenor(self) -> float:
+        """
+        MAR21.12(2)(a) equity, MAR21.14(2) FX:
+        mapowanie terminu opcji do najbliższego przepisanego tenoru vega.
+        MAR21.26(1): opcje bez terminu → najdłuższy tenor (10Y) + RRAO.
+        """
+        if self.option_maturity is None:
+            return 10.0  # MAR21.26(1)
+        return min(VEGA_TENORS, key=lambda t: abs(t - self.option_maturity))
 
     # ------------------------------------------------------------------ price
     def price(self) -> float:
@@ -73,4 +88,5 @@ class BSOption:
             K=self.K, T=self.T, r=self.r,
             sigma=sigma_new if sigma_new is not None else self.sigma,
             q=self.q, cp=self.cp, notional=self.notional,
+            option_maturity=self.option_maturity,  # zachowaj tenor przy repricingu
         ).price()
