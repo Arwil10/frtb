@@ -14,7 +14,7 @@ An end-to-end FRTB pipeline covering:
 2. 🧠 **IMA** — Expected Shortfall via Filtered Historical Simulation with GARCH(1,1), NMRF stressed add-on, IMA-DRC via Vasicek one-factor Monte Carlo
 3. 🔁 **Backtesting (MAR32)** — desk-level and bank-wide, producing the regulatory multiplier *m*
 4. 🧪 **PLA Test (MAR32.34–44)** — Spearman ρ + KS statistic on HPL vs RTPL
-5. 🏦 **Output Floor (CRR3 art. 89)** — `max(IMA_aggregate, 72.5% × Σ SA)`
+5. 🏦 **Output Floor (CRR3)** — `max(IMA_aggregate, 72.5% × Σ SA)`
 6. 📋 **Capital cliff report** — per-desk IMA eligibility + final capital charge
  
 ---
