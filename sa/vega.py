@@ -17,7 +17,7 @@ class VegaResult:
     total:            float
 
 
-# ---------------------------------------------------------------- §96 sens
+# ----------------------------------------------------------------
 def vega_sensitivity(opt: BSOption) -> float:
     n_units = opt.notional / opt.S        # MAR21.15: sensitivities expressed in reporting currency
     return n_units * opt.vega() * opt.sigma # MAR21.25: vega sensitivity = vega_BS × σ_implied

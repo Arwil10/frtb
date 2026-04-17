@@ -12,6 +12,3 @@ def test_vega_charge_nonnegative():
     result = compute_vega_charge(OPTIONS)
     assert result.total >= 0.0
 
-def test_high_scenario_geq_medium():
-    """MAR21.6: high scenario >= medium scenario."""
-    from sa.curvature import compute_curvature_charge

@@ -2,14 +2,13 @@
 config.py — centralized FRTB regulatory parameters (BCBS d457).
 
 Single source of truth for all risk weights, correlations, thresholds.
-Previously duplicated across sa_engine / vega_charge / curvature_charge.
 """
 
 # ============================================================================
 # Global constants
 # ============================================================================
 CONVERSION_FACTOR = 12.5   # MAR20.1: RWA = Capital × 12.5
-OUTPUT_FLOOR      = 0.725  # CRR3 art. 89: 72.5% output floor
+OUTPUT_FLOOR      = 0.725  # CRR3 72.5% output floor
 
 
 # ============================================================================
@@ -100,7 +99,7 @@ CORR_SCENARIOS = {  # używany przez sa/vega.py i sa/curvature.py
 # IMA — Expected Shortfall (MAR33)
 # ============================================================================
 ES_CONFIDENCE = 0.975  # MAR33.3: 97.5th percentile, one-tailed
-MC_MULTIPLIER = 1.5    # MAR33.41: baseline multiplier m_c
+MC_MULTIPLIER = 1.5    # MAR33.42: baseline multiplier m_c
 
 # GARCH(1,1) parametry dla FHS (MAR33.9)
 # α + β < 1 → stacjonarność procesu wariancji
@@ -118,7 +117,7 @@ DRC_HORIZON_Y      = 1.0        # MAR33.20(5): 1-year horizon
 
 IMA_DRC_CONFIDENCE   = 0.999    # MAR33.20(5)
 IMA_DRC_HORIZON_Y    = 1.0      # MAR33.20(5)
-IMA_DRC_HORIZON_EQ_Y = 60/252   # MAR33.20(4): opcjonalnie 60 dni dla equity
+IMA_DRC_HORIZON_EQ_Y = 60/252   # MAR33.20(4):
 IMA_DRC_PD_FLOOR     = 0.0003   # MAR33.24(2): floor 0.03%
 IMA_DRC_CALIB_YEARS  = 10       # MAR33.27(4): min. 10 lat kalibracji
 
@@ -206,7 +205,7 @@ PLAT_KS_RED_STAT    = 0.12  # MAR32.42(2):    red   D > 0.12
 
 
 # ============================================================================
-# Aliasy dla kompatybilności wstecznej — DO USUNIĘCIA po migracji
+# Aliasy dla kompatybilności wstecznej — DO USUNIĘCIA
 # ============================================================================
 RATING_PD                            = IMA_DRC_PD_INTERNAL
 IMA_DRC_RHO_SAME_BUCKET_SAME_SECTOR = IMA_DRC_RHO_INTERNAL

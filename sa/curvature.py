@@ -1,15 +1,15 @@
 """
-sa/curvature.py — curvature risk charge (d457 §108, §121–122).
+sa/curvature.py — curvature risk charge
 
-Per-option CVR for each shock direction (§108):
+Per-option CVR for each shock direction:
     CVR_k^up = -( V(S·(1+RW)) - V(S) - Δ·RW·S )  × notional_sign
     CVR_k^dn = -( V(S·(1-RW)) - V(S) + Δ·RW·S )  × notional_sign
 
-Bucket aggregation (§121):
+Bucket aggregation:
     K_b = sqrt( max(0, Σ max(CVR_k,0)² + Σ_{k≠l} ρ·CVR_k·CVR_l·ψ(CVR_k,CVR_l)) )
     with ψ = 0 if both CVR negative, else 1.
 
-Cross-bucket (§122):
+Cross-bucket:
     K   = sqrt( Σ K_b² + Σ_{b≠c} γ²·S_b·S_c·ψ(S_b,S_c) )
 Note: γ is SQUARED for curvature vs plain γ for delta/vega.
 """

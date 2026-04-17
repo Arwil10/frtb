@@ -1,7 +1,6 @@
 """
-sa/_aggregation.py — SBM aggregation primitives (d457 §54).
+sa/_aggregation.py — SBM aggregation primitives
 
-Formula appears in delta, vega and curvature — extracted to avoid duplication.
 """
 
 import numpy as np

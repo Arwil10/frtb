@@ -7,7 +7,7 @@ Pipeline:
   3. Run backtesting per desk -> green / red.           MAR32.16-32.19
   4. Run PLAT per desk -> pass / amber / fail.          MAR32.20-32.44
   5. Desk eligible for IMA only if BOTH tests pass.     MAR32.19 + MAR32.43
-  6. Apply output floor (72.5% × total SA) on aggregate. CRR3 art. 89
+  6. Apply output floor (72.5% × total SA) on aggregate. CRR3
 """
 
 from dataclasses import dataclass
@@ -48,7 +48,7 @@ def main() -> dict:
     print('#' * 65)
 
     # ------------------------------------------------- Bank-wide backtesting
-    # MAR32.4-32.15 — jeden wynik dla całego banku, mnożnik m do MAR33.41
+    # MAR32.4-32.15 — jeden wynik dla całego banku, mnożnik m do MAR33.42
     print(f"\n{'=' * 65}\n  BANK-WIDE BACKTESTING\n{'=' * 65}")
     bw_var_99, _, bw_apl, bw_hpl = generate_mock_var(
         'bankwide', scenario=BT_BW_SCENARIO
@@ -56,7 +56,7 @@ def main() -> dict:
     bw_bt: BankwideBacktestResult = run_backtest_bankwide(
         bw_var_99, bw_apl, bw_hpl, verbose=True
     )
-    # mnożnik przekazywany do IMA engine poniżej
+
     m = bw_bt.multiplier   # MAR32.9 Table 1 → MAR33.41
 
     desk_results: dict[str, DeskCapital] = {}

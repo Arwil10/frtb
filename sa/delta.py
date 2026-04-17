@@ -1,8 +1,8 @@
 """
-sa/delta.py — SBM delta risk charge (d457 §55, §58–60).
+sa/delta.py — SBM delta risk charge .
 
-FX: §55 — single cross-pair correlation ρ = 0.60.
-Equity: §55 tables 7–8 — bucket-level aggregation with per-scenario ρ / γ.
+FX:  — single cross-pair correlation ρ = 0.60.
+Equity: bucket-level aggregation with per-scenario ρ / γ.
 
 Options contribute their delta-equivalent exposure:
     delta_eq_EUR = (notional_EUR / S) × Δ_BS × S = notional × Δ_BS

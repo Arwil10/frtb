@@ -1,11 +1,11 @@
 """
-sa/drcima.py — SA Default Risk Charge (d457 §128–142), equity only.
+sa/drcima.py — SA Default Risk Charge, equity only.
 
 Two methods:
   bucket   : K_b = max(ΣJtD_long − HBR·ΣJtD_short, 0) × RW_b
   pd_based : per-position EL = PD·LGD·|N|, aggregated with HBR from JtD
 
-HBR (§137): HBR = ΣJtD_long_net / (ΣJtD_long_net + |ΣJtD_short_net|)
+HBR: HBR = ΣJtD_long_net / (ΣJtD_long_net + |ΣJtD_short_net|)
 """
 
 from collections import defaultdict

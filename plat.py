@@ -8,9 +8,6 @@ Compares HPL vs RTPL over a 250-day window:
 Zones: pass / amber (both IMA-eligible) / fail (forced to SA).
 """
 
-"""
-plat.py — PLA test (MAR32.34–32.44).
-"""
 from dataclasses import dataclass
 from typing import Literal
 
