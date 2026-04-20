@@ -73,8 +73,6 @@ def get_returns(tickers, period=None, start=None, end=None, n_days=504):
 
         return _synthetic_returns(tickers, n_days)
 
-# ima/es.py — dodaj na końcu
-
 def _portfolio_es_hs(
     returns_df: pd.DataFrame,
     exposures:  pd.Series,
@@ -82,9 +80,8 @@ def _portfolio_es_hs(
     confidence: float = ES_CONFIDENCE,
 ) -> float:
     """
-    Pure Historical Simulation ES — bez FHS.
-    Używana TYLKO do find_stress_window żeby uniknąć
-    artefaktów GARCH σ_current przy porównywaniu okien historycznych.
+    Pure Historical Simulation ES
+
     """
     available = [t for t in exposures.index if t in returns_df.columns]
     if not available:
@@ -107,10 +104,6 @@ def find_stress_window(
 ) -> tuple[str, str, float]:
     """
     MAR33.7 — znajdź 12-miesięczny okres maksymalnych strat.
-
-    Używa pure HS (nie FHS) do porównania okien historycznych —
-    FHS zawyża ES dla okien bliskich końcowi historii przez σ_current.
-    FHS jest stosowane tylko do obliczenia finalnego ES (MAR33.9).
     """
     today = pd.Timestamp.today().strftime('%Y-%m-%d')
     r_all = get_returns(tickers, start=f'{min_year}-01-01', end=today)
@@ -126,8 +119,7 @@ def find_stress_window(
     best_end   = '2009-08-31'
     best_es    = -np.inf
 
-    # Kroczące okno 252 dni (MAR33.7 — 12 miesięcy)
-    # Pure HS — bez artefaktów GARCH przy porównywaniu okien
+    # Kroczące okno 252 dni (MAR33.7 — 12 miesięcy
     for i in range(len(r_all) - 252):
         window = r_all.iloc[i: i + 252]
         es     = _portfolio_es_hs(window, exp, lh_)
@@ -140,9 +132,6 @@ def find_stress_window(
 
 
 def _synthetic_returns(tickers: list[str], n_days: int) -> pd.DataFrame:
-    """
-    DEV ONLY — różne σ per klasa aktywów żeby uniknąć jednorodności.
-    """
     rng  = np.random.default_rng(42)
     VOLS = {                     # przybliżone roczne σ → dzienna = σ/√252
         '^GSPC': 0.16, '^GDAXI': 0.18, '^FTSE': 0.14,
@@ -182,7 +171,7 @@ def _fhs_returns(returns_df: pd.DataFrame) -> pd.DataFrame:
         r̃_t = (r_t / σ_t) × σ_current
 
     Standaryzujemy zwroty przez historyczną zmienność GARCH,
-    następnie przeskalowujemy przez bieżącą (ostatnią) zmienność.
+    następnie przeskalowujemy przez bieżącą zmienność.
     Dzięki temu ogon ES uwzględnia aktualny reżim zmienności.
     """
     filtered = {}
