@@ -217,7 +217,7 @@ This is a **teaching prototype**, not production-grade software. Each item is a 
 | 8 | **Stressed ES ratio** | `ES_R,S / ES_R,C` forced to 1.0 (i.e. `es_rc = es_curr`) | MAR33.5(2): ratio from reduced set R calibrated to the actual stress period |
 | 10 | **NMRF identification** | Single hardcoded flag (`USDTRY`), no RFET | MAR31.12 RFET: ≥ 24 verifiable prices per year, max 30-day gap; MAR33.16–18 category split |
 | 11 | **RFET** | Entirely absent — MRF/NMRF split is hardcoded in config | MAR31.12: must be run on live market data; drives SES bucketing |
-| 15 | **Option JtD** | Set to 0 per MAR22.14 (formally correct) | Some banks apply delta-equivalent hedge recognition in practice |
+| 15 | **Option JtD** | Set to 0 per MAR22.14 (formally correct) | default loss captured via mark-to-market P&L, not JtD. |
 | 16 | **Vega risk** | Flat vol surface shock per bucket, no term-structure | MAR21 vega: sensitivities per option maturity × underlying tenor grid |
 | 18 | **Test suite** | 19 unit tests (MAR21 correlation + curvature + stress/edge cases) | SR 11-7 / MAR10.8: full model risk management, benchmark reconciliation, independent validation |
 | 19 | **PLA diagnostics** | Aggregate Spearman + KS only | Greek-level delta/vega P&L explain, unexplained-P&L attribution report |
