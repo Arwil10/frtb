@@ -225,7 +225,6 @@ This is a **teaching prototype**, not production-grade software. Each item is a 
 | 17 | **SA-DRC LGD** | Fixed at 100% for equity and 75% for senior debt | MAR22.18: seniority-based LGD schedule, issuer-specific recovery |
 | 18 | **Test suite** | 19 unit tests (MAR21 correlation + curvature + stress/edge cases) | SR 11-7 / MAR10.8: full model risk management, benchmark reconciliation, independent validation |
 | 19 | **PLA diagnostics** | Aggregate Spearman + KS only | Greek-level delta/vega P&L explain, unexplained-P&L attribution report |
-| 20 | **ES horizons** | Single 10-day horizon, no per-risk-class liquidity horizon scaling for MRF | MAR33.12: five liquidity horizon buckets (10/20/40/60/120 days), partial-period extrapolation |
  
 ---
  
