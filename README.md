@@ -215,7 +215,6 @@ This is a **teaching prototype**, not production-grade software. Each item is a 
 | 4 | **Index look-through** | `^GSPC`, `^GDAXI` etc. treated as single positions | MAR22.5: decomposition into constituent single names |
 | 5 | **Vasicek model** | Single-factor, flat ρ per rating bucket (IG 0.30, EM 0.15) | Multi-factor Gaussian copula, historically calibrated co-default correlations |
 | 6 | **DRC simulations** | `N_SIM = 100,000` (~100 tail observations) | Production: 1 M–10 M with importance sampling |
-| 7 | **GARCH calibration** | Hardcoded `ω=1e-6, α=0.10, β=0.85` for all risk factors | MAR33.5: per-ticker MLE fit, parameter stability testing |
 | 8 | **Stressed ES ratio** | `ES_R,S / ES_R,C` forced to 1.0 (i.e. `es_rc = es_curr`) | MAR33.5(2): ratio from reduced set R calibrated to the actual stress period |
 | 9 | **Stress window search** | Full-set plain historical simulation, fallback to Lehman 2008 | MAR33.5(2): reduced set R required; must maximise `ES_R,S` over ≥ 10-year horizon |
 | 10 | **NMRF identification** | Single hardcoded flag (`USDTRY`), no RFET | MAR31.12 RFET: ≥ 24 verifiable prices per year, max 30-day gap; MAR33.16–18 category split |
