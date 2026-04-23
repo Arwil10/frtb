@@ -219,7 +219,6 @@ This is a **teaching prototype**, not production-grade software. Each item is a 
 | 9 | **Stress window search** | Full-set plain historical simulation, fallback to Lehman 2008 | MAR33.5(2): reduced set R required; must maximise `ES_R,S` over ≥ 10-year horizon |
 | 10 | **NMRF identification** | Single hardcoded flag (`USDTRY`), no RFET | MAR31.12 RFET: ≥ 24 verifiable prices per year, max 30-day gap; MAR33.16–18 category split |
 | 11 | **RFET** | Entirely absent — MRF/NMRF split is hardcoded in config | MAR31.12: must be run on live market data; drives SES bucketing |
-| 12 | **Backtesting counters** | `max(APL, HPL)` for both desk and bank-wide exception counts | MAR32.5 (bank-wide): 99% HPL only; MAR32.18 (desk): separate APL and HPL counters |
 | 13 | **BT / PLAT data** | Gaussian mock P&L (`np.random.normal`) | Production: front-office APL, frozen-portfolio HPL (risk-factor revaluation), risk-engine RTPL |
 | 14 | **SA-DRC ratings** | Collapsed to IG / HY / D / NR (worst-case bucket) | MAR22.24 Table 2: per-rating-notch risk weights |
 | 15 | **Option JtD** | Set to 0 per MAR22.14 (formally correct) | Some banks apply delta-equivalent hedge recognition in practice |
