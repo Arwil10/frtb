@@ -220,7 +220,6 @@ This is a **teaching prototype**, not production-grade software. Each item is a 
 | 14 | **SA-DRC ratings** | Collapsed to IG / HY / D / NR (worst-case bucket) | MAR22.24 Table 2: per-rating-notch risk weights |
 | 15 | **Option JtD** | Set to 0 per MAR22.14 (formally correct) | Some banks apply delta-equivalent hedge recognition in practice |
 | 16 | **Vega risk** | Flat vol surface shock per bucket, no term-structure | MAR21 vega: sensitivities per option maturity × underlying tenor grid |
-| 17 | **SA-DRC LGD** | Fixed at 100% for equity and 75% for senior debt | MAR22.18: seniority-based LGD schedule, issuer-specific recovery |
 | 18 | **Test suite** | 19 unit tests (MAR21 correlation + curvature + stress/edge cases) | SR 11-7 / MAR10.8: full model risk management, benchmark reconciliation, independent validation |
 | 19 | **PLA diagnostics** | Aggregate Spearman + KS only | Greek-level delta/vega P&L explain, unexplained-P&L attribution report |
  
