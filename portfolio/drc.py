@@ -35,7 +35,7 @@ class DRCPosition:
 
 # NOTE: equity indices used as proxy for single-name look-through
     # (MAR22.5 requires look-through in production)
-# portfolio/drc.py
+
 
 DRC_POSITIONS: list[DRCPosition] = [
     # Sovereign proxy ratings — MAR33 equity JtD = price → 0

@@ -88,5 +88,5 @@ class BSOption:
             K=self.K, T=self.T, r=self.r,
             sigma=sigma_new if sigma_new is not None else self.sigma,
             q=self.q, cp=self.cp, notional=self.notional,
-            option_maturity=self.option_maturity,  # zachowaj tenor przy repricingu
+            option_maturity=self.option_maturity,
         ).price()

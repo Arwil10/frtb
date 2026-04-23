@@ -10,15 +10,19 @@ MAR33.9  — FHS is an approved simulation method
 """
 
 from __future__ import annotations
+from dataclasses import dataclass
+
+import dataclasses
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
 from config import ES_CONFIDENCE, GARCH_OMEGA, GARCH_ALPHA, GARCH_BETA
-# import yfinance as yf
-# for t in ['EURPLN=X', 'GBPPLN=X', 'JPYPLN=X', 'USDTRY=X']:
-#     df = yf.download(t, period='5y', progress=False)
-#     print(f"{t}: {len(df)} rows")
+
+@dataclass
+class GARCHParams:
+    omega: float
+    alpha: float
+    beta: float
 
 # ============================================================================
 # Market data
@@ -34,7 +38,6 @@ def get_returns(tickers, period=None, start=None, end=None, n_days=504):
             raw = yf.download(tickers, start=start, end=end, progress=False)
 
         if isinstance(raw.columns, pd.MultiIndex):
-            # Próbuj Close, fallback na Adj Close
             if 'Close' in raw.columns.get_level_values(0):
                 prices = raw['Close']
             elif 'Adj Close' in raw.columns.get_level_values(0):
@@ -55,7 +58,6 @@ def get_returns(tickers, period=None, start=None, end=None, n_days=504):
         prices.columns = [c if isinstance(c, str) else str(c)
                           for c in prices.columns]
 
-        # Usuń kolumny z samymi NaN (ticker nie pobrany)
         prices = prices.dropna(axis=1, how='all')
 
         returns = np.log(prices / prices.shift(1)).dropna()
@@ -150,18 +152,49 @@ def _synthetic_returns(tickers: list[str], n_days: int) -> pd.DataFrame:
 # ============================================================================
 # GARCH(1,1) volatility filter
 # ============================================================================
-def _garch_vol(returns: np.ndarray) -> np.ndarray:
+def _garch_mle(returns: np.ndarray) -> GARCHParams:
+    if len(returns) < 100:
+        return GARCHParams(omega=GARCH_OMEGA, alpha=GARCH_ALPHA, beta=GARCH_BETA)
+
+    try:
+        from arch import arch_model
+        model = arch_model(returns * 100, vol='Garch', p=1, q=1,
+                           dist='normal', rescale=False)
+        result = model.fit(disp='off', show_warning=False)
+
+
+        scale = 100 ** 2
+        omega = float(result.params['omega']) / scale
+        alpha = float(result.params['alpha[1]'])
+        beta = float(result.params['beta[1]'])
+
+        # sanity check
+        if alpha + beta >= 1.0 or omega <= 0:
+            raise ValueError("niestacjonarny")
+
+        return GARCHParams(omega=omega, alpha=alpha, beta=beta)
+
+    except Exception as e:
+        import warnings
+        warnings.warn(f"arch GARCH failed ({e}). Fallback.")
+        return GARCHParams(omega=GARCH_OMEGA, alpha=GARCH_ALPHA, beta=GARCH_BETA)
+
+def _garch_vol(returns: np.ndarray, params: GARCHParams | None = None) -> np.ndarray:
     """
-    σ²_t = ω + α·r²_{t-1} + β·σ²_{t-1}   — rekurencja GARCH(1,1)
-    Zwraca σ_t (odchylenie standardowe, nie wariancję).
+    σ²_t = ω + α·r²_{t-1} + β·σ²_{t-1}
+
     """
+    if params is None:
+        params = _garch_mle(returns)
+
     n      = len(returns)
     var    = np.empty(n)
     var[0] = float(np.var(returns))
     for t in range(1, n):
-        var[t] = (GARCH_OMEGA
-                  + GARCH_ALPHA * returns[t - 1] ** 2
-                  + GARCH_BETA  * var[t - 1])
+        var[t] = (params.omega
+                  + params.alpha * returns[t - 1] ** 2
+                  + params.beta * var[t - 1])
+
     return np.sqrt(np.maximum(var, 1e-12))
 
 
@@ -170,17 +203,14 @@ def _fhs_returns(returns_df: pd.DataFrame) -> pd.DataFrame:
     Filtered Historical Simulation:
         r̃_t = (r_t / σ_t) × σ_current
 
-    Standaryzujemy zwroty przez historyczną zmienność GARCH,
-    następnie przeskalowujemy przez bieżącą zmienność.
-    Dzięki temu ogon ES uwzględnia aktualny reżim zmienności.
+    Standaryzuje zwroty przez historyczną zmienność GARCH,
     """
     filtered = {}
     for col in returns_df.columns:
         r             = returns_df[col].values
-        sigma         = _garch_vol(r)
-        sigma_current = sigma[-1]
-        # standaryzacja + rescaling
-        filtered[col] = (r / sigma) * sigma_current
+        params         = _garch_mle(r)
+        sigma = _garch_vol(r, params)
+        filtered[col] = (r / sigma) * sigma[-1]
     return pd.DataFrame(filtered, index=returns_df.index)
 
 # ============================================================================
