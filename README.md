@@ -228,9 +228,7 @@ This is a **teaching prototype**, not production-grade software. Each item is a 
  
 - [ ] Add GIRR, CSR non-sec, Commodity to SBM
 - [ ] Replace hardcoded correlations with full MAR21 ρ_kl / γ_bc lookup tables
-- [ ] Wire real APL / HPL / RTPL into BT and PLAT modules
 - [ ] Implement reduced set R and MAR33.5(2)–33.6 ES ratio correctly
-- [ ] IMA-DRC: multi-factor Gaussian copula, real ρ calibration, `N_SIM ≥ 1e6`
 - [ ] Index look-through for equity (MAR22.5)
 - [ ] Real data pipeline with validation and hard-fail on missing data
 - [ ] Full test suite + regulatory benchmark reconciliation
