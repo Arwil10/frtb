@@ -14,7 +14,6 @@ A market risk capital engine implementing FRTB (BCBS d457 / CRR3), running the s
 6. A capital cliff report showing per-desk IMA eligibility and the resulting capital charge
 
 ## Layout
-
 ├── main.py # orchestrator — runs the full pipeline
 ├── config.py # regulatory parameters (risk weights, correlations, liquidity horizons)
 ├── backtesting.py # MAR32 desk-level and bank-wide VaR backtesting
@@ -42,7 +41,6 @@ A market risk capital engine implementing FRTB (BCBS d457 / CRR3), running the s
 ├── test_curvature.py # CVR logic, psi indicator, bucket_K (MAR21.5)
 ├── test_properties.py # non-negativity and monotonicity
 └── test_stress.py # edge cases: empty portfolio, zero sigma, full offset
-
 
 ## Methodology
 
