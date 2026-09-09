@@ -16,8 +16,8 @@ A market risk capital engine implementing FRTB  running the standardised approac
 
 ├── main.py # orchestrator — runs the full pipeline
 ├── config.py # regulatory parameters (risk weights, correlations, liquidity horizons)
-├── backtesting.py # MAR32 desk-level and bank-wide VaR backtesting
-├── plat.py # MAR32.34–44 P&L attribution test
+├── backtesting.py # desk-level and bank-wide VaR backtesting
+├── plat.py # P&L attribution test
 ├── sa/
 │ ├── delta.py # delta SBM — FX & equity
 │ ├── vega.py # vega SBM — options vol sensitivities
@@ -26,8 +26,8 @@ A market risk capital engine implementing FRTB  running the standardised approac
 │ ├── engine.py # SA-TB orchestrator
 │ └── _aggregation.py # SBM bucket / cross-bucket aggregation
 ├── ima/
-│ ├── es.py # FHS-GARCH Expected Shortfall (MAR33)
-│ ├── drcima.py # IMA-DRC — Vasicek one-factor MC (MAR33.24)
+│ ├── es.py # FHS-GARCH Expected Shortfall 
+│ ├── drcima.py # IMA-DRC — Vasicek one-factor MC
 │ └── engine.py # IMA orchestrator (ES + SES_NMRF + DRC)
 ├── portfolio/
 │ ├── linear.py # linear positions (FX spots, equity)
@@ -37,8 +37,8 @@ A market risk capital engine implementing FRTB  running the standardised approac
 ├── pricing/
 │ └── black_scholes.py # Black-Scholes pricer (delta, vega, re-pricing)
 └── tests/
-├── test_corr_scenarios.py # MAR21.6 correlation scenario ordering
-├── test_curvature.py # CVR logic, psi indicator, bucket_K (MAR21.5)
+├── test_corr_scenarios.py # 
+├── test_curvature.py # CVR logic, psi indicator, bucket_K 
 ├── test_properties.py # non-negativity and monotonicity
 └── test_stress.py # edge cases: empty portfolio, zero sigma, full offset
 
@@ -76,7 +76,7 @@ $$SES_{NMRF} = \sqrt{\sum_{q} SES_q^2}, \qquad SES_q = ES_q^{RS} \times \sqrt{\f
 
 square-root-of-time scaling by liquidity horizon.
 
-**SA-TB — SBM aggregation (MAR21.4)**
+**SA-TB — SBM aggregation**
 
 Within a bucket:
 
@@ -165,11 +165,11 @@ options (BSOption -> Black-Scholes pricer)
 | drcima.py -> Vasicek MC, VaR 99.9%
 | NMRF flag -> SES add-on
 |
-+--> Backtesting (MAR32)
++--> Backtesting 
 | desk-level: green/red -> IMA eligibility
 | bank-wide: m multiplier
 |
-+--> PLAT (MAR32.34-44)
++--> PLAT 
 | Spearman rho + KS(HPL, RTPL)
 | green/amber/red -> IMA eligibility
 |
@@ -197,7 +197,7 @@ capital cliff report
 ## Roadmap
 
 - Add GIRR, CSR non-sec, commodity to the SBM
-- Replace hardcoded correlations with the full MAR21 rho_kl / gamma_bc tables
-- Implement the reduced set R and MAR33.5(2)–33.6 ES ratio properly
+- Replace hardcoded correlations with the full  rho_kl / gamma_bc tables
+- Implement the reduced set R and ES ratio properly
 - Real data pipeline with validation and hard-fail on missing data
 - Model documentation per SR 11-7n
