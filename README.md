@@ -1,17 +1,16 @@
 # Basel IV / FRTB Capital Engine (SA-TB + IMA)
 
-A market risk capital engine implementing FRTB (BCBS d457 / CRR3), running the standardised approach (SA-TB) and internal models approach (IMA) side by side with the 72.5% output floor.
-
-**Disclaimer:** this is an educational prototype, not regulatory-compliant capital calculation software. Simplifications and where they diverge from the standard are listed at the bottom.
+A market risk capital engine implementing FRTB  running the standardised approach and internal models approach.
+**Disclaimer:** this is an educational prototype, simplifications and shortcuts are present.
 
 ## What's in here
 
 1. **SA** — sensitivity-based method (delta, vega, curvature) plus SA-DRC
-2. **IMA** — Expected Shortfall via Filtered Historical Simulation with GARCH(1,1), an NMRF stressed add-on, and IMA-DRC through a Vasicek one-factor Monte Carlo
+2. **IMA** — Expected Shortfall via Filtered Historical Simulation with GARCH(1,1), an NMRF stressed add-on, IMA-DRC through a Vasicek one-factor Monte Carlo
 3. **Backtesting** — desk-level and bank-wide, producing the regulatory multiplier m
 4. **P&L attribution test** — Spearman rho and KS statistic on HPL vs RTPL
 5. **Output floor** — max(IMA_aggregate, 72.5% × sum of SA)
-6. A capital cliff report showing per-desk IMA eligibility and the resulting capital charge
+6. A report showing per-desk IMA eligibility and the resulting capital charge
 
 ## Layout
 
@@ -111,7 +110,7 @@ python main.py
 
 ## Results on the prototype portfolio (FX + equity desks)
 
-Numbers below are from mock data and the hardcoded GARCH parameters — don't read anything into the absolute magnitudes.
+Numbers below are demonstratory from one of the outputs.
 
 ### Capital stack
 
@@ -152,7 +151,7 @@ Bank-wide backtest: green, 1 exception over 250 observations, so m = 1.50.
 | **RWA final** | **613.49** |
 | Capital cliff (FX PLAT failure) | **+163.69 mln EUR (+36.4% vs pure IMA)** |
 
-The FX desk fails the P&L attribution test (Spearman 0.105, KS 0.292), so it falls back from IMA (75.74 mln) to SA (239.43 mln) — an extra 163.69 mln EUR. That's the IMA eligibility cliff from MAR32 playing out directly in the numbers.
+The FX desk fails the P&L attribution test (Spearman 0.105, KS 0.292), so it falls back from IMA (75.74 mln) to SA (239.43 mln)
 
 ## Pipeline flow
 
