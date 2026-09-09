@@ -1,4 +1,4 @@
-# Basel IV / FRTB Capital Engine (SA-TB + IMA)
+# FRTB Capital Engine (SA+IMA)
 
 A market risk capital engine implementing FRTB  running the standardised approach and internal models approach.
 **Disclaimer:** this is an educational prototype, simplifications and shortcuts are present.
