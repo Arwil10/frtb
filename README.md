@@ -182,19 +182,18 @@ capital cliff report
 
 ## Known simplifications
 
-| # | Area | Simplification | Standard requirement |
-| :--- | :--- | :--- | :--- |
-| 1 | Risk classes | FX and equity only | GIRR, CSR non-sec, CSR sec non-CTP, CTP, commodity all missing |
-| 2 | Correlation scenarios | Single flat rho per risk class, hardcoded | MAR21 full rho_kl / gamma_bc lookup tables per bucket pair |
-| 3 | IMA-DRC PDs | Sovereign proxy (IG floor 0.03%, EM 1.0%) applied to all equity index issuers | MAR33.24: obligor-level PDs from IRB models or market-implied data |
-| 4 | Vasicek model | Single-factor, flat rho per rating bucket (IG 0.30, EM 0.15) | Multi-factor Gaussian copula, historically calibrated co-default correlations |
-| 5 | Stressed ES ratio | ES_(R,S) / ES_(R,C) forced to 1.0 | MAR33.5(2): ratio from a reduced set R, calibrated to the actual stress period |
-| 6 | NMRF identification | Single hardcoded flag (USDTRY), no RFET | MAR31.12 RFET: 24+ verifiable prices per year, max 30-day gap; MAR33.16–18 category split |
-| 7 | RFET | Absent entirely — MRF/NMRF split hardcoded in config | MAR31.12: must run on live market data, drives SES bucketing |
-| 8 | Option JtD | Set to 0 per MAR22.14 (formally correct) | Default loss captured via mark-to-market P&L, not JtD |
-| 9 | Vega risk | Flat vol surface shock per bucket, no term structure | MAR21 vega: sensitivities per option maturity x underlying tenor grid |
-| 10 | Test suite | 19 unit tests (MAR21 correlation, curvature, stress/edge cases) | SR 11-7 / MAR10.8: full model risk management, benchmark reconciliation, independent validation |
-| 11 | PLA diagnostics | Aggregate Spearman + KS only | Greek-level delta/vega P&L explain, unexplained-P&L attribution report |
+| # | Area | Simplification | 
+| :--- | :--- | :--- | 
+| 1 | Risk classes | FX and equity only | 
+| 2 | Correlation scenarios | Single flat rho per risk class, hardcoded | 
+| 3 | IMA-DRC PDs | Sovereign proxy (IG floor 0.03%, EM 1.0%) applied to all equity index issuers | 
+| 4 | Vasicek model | Single-factor, flat rho per rating bucket (IG 0.30, EM 0.15) | 
+| 5 | Stressed ES ratio | ES_(R,S) / ES_(R,C) forced to 1.0 |
+| 6 | NMRF identification | Single hardcoded flag (USDTRY), no RFET |
+| 7 | RFET | Absent entirely — MRF/NMRF split hardcoded in config | 
+| 8 | Vega risk | Flat vol surface shock per bucket, no term structure | 
+| 9 | Test suite | 19 unit tests (MAR21 correlation, curvature, stress/edge cases) | 
+| 10 | PLA diagnostics | Aggregate Spearman + KS only | |
 
 ## Roadmap
 
