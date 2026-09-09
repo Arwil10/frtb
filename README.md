@@ -53,14 +53,13 @@ $$K = \max\!\left(\text{IMA}_{agg},\; 0.725 \times \sum_{d} \text{SA}_{d}\right)
 
 $$\text{IMA}_{d} = \underbrace{ES_{F,C} \times \frac{ES_{R,S}}{ES_{R,C}} \times m}_{\text{Capital MRF}} + \underbrace{SES_{NMRF}}_{\text{NMRF add-on}} + \underbrace{DRC_{IMA}}_{\text{Vasicek MC}}$$
 
-where $m$ is the backtesting multiplier from MAR32.9 Table 1 (1.5 in the green zone).
+where $m$ is the backtesting multiplier
 
-**Expected Shortfall — FHS-GARCH (MAR33.3)**
+**Expected Shortfall — FHS-GARCH**
 
 $$ES_{t} = -\frac{1}{T \cdot \alpha} \sum_{\tau: r_\tau < \text{VaR}_\alpha} r_\tau, \qquad \tilde{r}_\tau = \frac{\epsilon_\tau}{\hat{\sigma}_\tau} \cdot \hat{\sigma}_t$$
 
-Returns get standardised by the GARCH(1,1) conditional volatility, then rescaled to the current variance before taking the tail average — that's the filtered historical simulation step.
-
+Returns get standardised by the GARCH(1,1), then rescaled to the current variance before taking the tail average
 **GARCH(1,1) variance process**
 
 $$\sigma_t^2 = \omega + \alpha\,\epsilon_{t-1}^2 + \beta\,\sigma_{t-1}^2$$
@@ -87,9 +86,9 @@ Across buckets:
 
 $$\text{SA-TB} = \max\!\left(\sqrt{\sum_b K_b^2 + \gamma_{bc} \sum_{b \neq c} S_b \cdot S_c},\; 0\right)$$
 
-Three correlation scenarios per MAR21.6 (low/medium/high), worst case is taken.
+Three correlation scenarios (low/medium/high), worst case is taken.
 
-**Curvature CVR (MAR21.5)**
+**Curvature CVR**
 
 $$CVR_k^{\pm} = -\!\left[\,V(x_k^{\pm}) - V(x_k) \mp RW_k^{curv} \cdot \delta_k\right]$$
 
