@@ -70,9 +70,6 @@ $$\sigma_t^2 = \omega + \alpha\,\epsilon_{t-1}^2 + \beta\,\sigma_{t-1}^2$$
 
 $$L_i = \mathbf{1}\!\left[\sqrt{\rho_i}\,Z + \sqrt{1-\rho_i}\,\epsilon_i \leq \Phi^{-1}(PD_i)\right] \times JtD_i$$
 
-$$DRC_{IMA} = \text{VaR}_{99.9\%}\!\left(\sum_i L_i\right)$$
-
-$Z \sim \mathcal{N}(0,1)$ is the systematic factor, $\epsilon_i \sim \mathcal{N}(0,1)$ idiosyncratic, and $\rho_i$ is set per rating bucket (0.30 for investment grade, 0.15 for emerging market).
 
 **NMRF stressed add-on**
 
