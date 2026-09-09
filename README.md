@@ -65,7 +65,6 @@ Returns get standardised by the GARCH(1,1) conditional volatility, then rescaled
 
 $$\sigma_t^2 = \omega + \alpha\,\epsilon_{t-1}^2 + \beta\,\sigma_{t-1}^2$$
 
-with $\omega = 10^{-6}$, $\alpha = 0.10$, $\beta = 0.85$ hardcoded (see simplification #7 below).
 
 **IMA-DRC — Vasicek one-factor**
 
@@ -79,7 +78,7 @@ $Z \sim \mathcal{N}(0,1)$ is the systematic factor, $\epsilon_i \sim \mathcal{N}
 
 $$SES_{NMRF} = \sqrt{\sum_{q} SES_q^2}, \qquad SES_q = ES_q^{RS} \times \sqrt{\frac{LH_q}{10}}$$
 
-That's the square-root-of-time scaling by liquidity horizon.
+square-root-of-time scaling by liquidity horizon.
 
 **SA-TB — SBM aggregation (MAR21.4)**
 
